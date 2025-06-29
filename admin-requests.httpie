@@ -1,0 +1,36 @@
+//
+http POST :8081/auth/login username=admin password=admin123
+
+//
+export ADMIN_TOKEN=$(http POST :8081/auth/login username=admin password=admin123 | jq -r .token)
+
+//
+http :8083/generateReport "Authorization:Bearer $ADMIN_TOKEN"
+
+//
+http :8083/whoami "Authorization:Bearer $ADMIN_TOKEN"
+
+
+// Grant permission
+http POST :8081/permissions/grant permission=GENERATE_REPORT "Authorization:Bearer $ADMIN_TOKEN"
+
+// Grant permission to another user
+http POST :8081/permissions/grant permission=GENERATE_REPORT targetUser=alice "Authorization:Bearer $ADMIN_TOKEN"
+
+
+// List permissions
+http :8081/permissions/list "Authorization:Bearer $ADMIN_TOKEN"
+
+// 
+export ADMIN_TOKEN=$(http POST :8081/auth/login username=admin password=admin123 | jq -r .token)
+
+// Decode JWT token
+echo $ADMIN_TOKEN | cut -d '.' -f2 | base64 -d | jq
+
+//
+http POST :8081/permissions/grant permission=GENERATE_REPORT targetUser=alice "Authorization:Bearer $ADMIN_TOKEN"
+
+
+
+
+

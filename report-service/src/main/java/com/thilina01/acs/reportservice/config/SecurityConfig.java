@@ -30,7 +30,7 @@ public class SecurityConfig {
                 .formLogin(form -> form.disable())
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/public").permitAll()
-                        .requestMatchers("/generateReport").hasRole("ADMIN")
+                        // .requestMatchers("/generateReport").hasAuthority("PERM_GENERATE_REPORT") // handled by @PreAuthorize
                         .anyRequest().authenticated())
                 .oauth2ResourceServer(oauth2 -> oauth2
                         .jwt(jwt -> jwt.jwtAuthenticationConverter(jwtAuthenticationConverter())));

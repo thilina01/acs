@@ -22,15 +22,21 @@ public class PermissionTestController {
 
     @PostMapping("/grant")
     public String grant(@AuthenticationPrincipal Jwt jwt, @RequestBody Map<String, String> body) {
-        String username = jwt.getSubject();
+        String caller = jwt.getSubject();
+        String targetUser = body.getOrDefault("targetUser", caller);
         String permission = body.get("permission");
 
         if (permission == null || permission.isBlank()) {
             throw new IllegalArgumentException("Missing 'permission' field in body");
         }
 
-        redisPermissionService.grantTemporaryPermission(username, permission, Duration.ofMinutes(10));
-        return "Granted " + permission + " to " + username + " for 10 minutes.";
+        // Ensure only admins can grant to others
+        if (!targetUser.equals(caller) && !jwt.getClaimAsStringList("roles").contains("ROLE_ADMIN")) {
+            throw new SecurityException("Only admins can grant permissions to other users");
+        }
+
+        redisPermissionService.grantTemporaryPermission(targetUser, permission, Duration.ofMinutes(10));
+        return "Granted " + permission + " to " + targetUser + " for 10 minutes.";
     }
 
     @GetMapping("/list")

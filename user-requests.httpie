@@ -1,0 +1,30 @@
+
+http :8081/hello
+
+//
+http POST :8081/auth/login username=alice password=password123
+
+//
+export TOKEN=$(http POST :8081/auth/login username=alice password=password123 | jq -r .token)
+
+//
+http :8081/auth/me "Authorization:Bearer $TOKEN"
+
+// -------
+
+// First try public
+http :8083/public
+
+//
+http :8083/generateReport "Authorization:Bearer $TOKEN"
+
+//
+http :8083/whoami "Authorization:Bearer $TOKEN"
+
+//
+http :8081/permissions/list "Authorization:Bearer $TOKEN"
+
+//
+echo $TOKEN | cut -d '.' -f2 | base64 -d | jq
+
+
