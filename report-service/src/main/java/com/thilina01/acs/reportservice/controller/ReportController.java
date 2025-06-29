@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
@@ -18,6 +19,7 @@ public class ReportController {
         return "This is public.";
     }
 
+    @PreAuthorize("hasAuthority('PERM_GENERATE_REPORT')")
     @GetMapping("/generateReport")
     public ResponseEntity<String> generateReport(Authentication auth) {
         System.out.println("Authenticated user: " + auth.getName());
