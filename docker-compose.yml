@@ -12,3 +12,9 @@ services:
       - "8083:8080"
     environment:
       - SPRING_PROFILES_ACTIVE=dev
+
+  redis:
+    image: redis:7-alpine
+    container_name: redis
+    ports:
+      - "6379:6379"

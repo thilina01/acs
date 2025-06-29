@@ -30,3 +30,10 @@ http :8083/generateReport "Authorization:Bearer $TOKEN"
 //
 http :8083/whoami "Authorization:Bearer $TOKEN"
 
+
+// Grant permission
+http POST :8081/permissions/grant permission=GENERATE_REPORT "Authorization:Bearer $TOKEN"
+
+// List permissions
+http :8081/permissions/list "Authorization:Bearer $TOKEN"
+
