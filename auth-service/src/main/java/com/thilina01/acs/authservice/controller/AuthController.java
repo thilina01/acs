@@ -39,7 +39,7 @@ public class AuthController {
         var user = (User) authentication.getPrincipal();
         var roles = user.getAuthorities().stream().map(GrantedAuthority::getAuthority).toList();
 
-        String jwt = jwtService.generateToken(username, roles, "engineering");
+        String jwt = jwtService.generateToken(username, roles);
 
         return ResponseEntity.ok(Map.of("token", jwt));
     }

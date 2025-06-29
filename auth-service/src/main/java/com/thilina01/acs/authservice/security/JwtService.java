@@ -9,7 +9,6 @@ import org.springframework.stereotype.Service;
 import java.security.Key;
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
 
 @Service
 public class JwtService {
@@ -21,14 +20,18 @@ public class JwtService {
         return Keys.hmacShaKeyFor(keyBytes);
     }
 
-    public String generateToken(String username, List<String> roles, String department) {
+    public String generateToken(String username, List<String> roles) {
         return Jwts.builder()
                 .setSubject(username)
                 .claim("roles", roles)
-                .claim("department", department)
+                .claim("department", "engineering") // ✅ new claim
+                .claim("tenant", "thilina01") // ✅ new claim
+                .claim("email", username + "@thilina01.com") // ✅ new claim (can be dynamic)
+                .claim("fullName", "Test Full Name") // ✅ new claim (could come from DB)
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60)) // 1 hour
                 .signWith(getSignInKey(), SignatureAlgorithm.HS256)
                 .compact();
     }
+
 }
