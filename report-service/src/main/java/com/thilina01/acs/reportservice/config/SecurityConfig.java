@@ -30,7 +30,8 @@ public class SecurityConfig {
                 .formLogin(form -> form.disable())
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/public").permitAll()
-                        // .requestMatchers("/generateReport").hasAuthority("PERM_GENERATE_REPORT") // handled by @PreAuthorize
+                        // .requestMatchers("/generateReport").hasAuthority("PERM_GENERATE_REPORT") //
+                        // handled by @PreAuthorize
                         .anyRequest().authenticated())
                 .oauth2ResourceServer(oauth2 -> oauth2
                         .jwt(jwt -> jwt.jwtAuthenticationConverter(jwtAuthenticationConverter())));
@@ -62,8 +63,20 @@ public class SecurityConfig {
                                 .forEach(authorities::add);
                     }
 
+                    // 🔥 Inject default permissions for ROLE_ADMIN
+                    List<String> roles = jwt.getClaimAsStringList("roles");
+                    if (roles != null && roles.contains("ROLE_ADMIN")) {
+                        List<String> adminImplied = List.of(
+                                "GENERATE_REPORT", "DELETE_USER", "ACCESS_AUDIT_LOGS");
+
+                        adminImplied.stream()
+                                .map(perm -> new SimpleGrantedAuthority("PERM_" + perm))
+                                .forEach(authorities::add);
+                    }
+
                     return authorities;
                 });
+
             }
         };
     }
