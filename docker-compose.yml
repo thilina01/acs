@@ -5,6 +5,12 @@ services:
       - "8081:8080"
     environment:
       - SPRING_PROFILES_ACTIVE=dev
+    networks:
+      - acs-network
+    depends_on:
+      - postgres
+      - redis
+
 
   report-service:
     build: ./report-service
@@ -18,3 +24,26 @@ services:
     container_name: redis
     ports:
       - "6379:6379"
+    networks:
+      - acs-network
+  
+  postgres:
+    image: postgres:15
+    container_name: acs-postgres
+    environment:
+      POSTGRES_DB: acsdb
+      POSTGRES_USER: acsuser
+      POSTGRES_PASSWORD: acspass
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - acs-network
+
+volumes:
+  postgres_data:
+
+networks:
+  acs-network:
+    driver: bridge

@@ -30,7 +30,11 @@ echo $ADMIN_TOKEN | cut -d '.' -f2 | base64 -d | jq
 //
 http POST :8081/permissions/grant permission=GENERATE_REPORT targetUser=alice "Authorization:Bearer $ADMIN_TOKEN"
 
+//
+http POST :8081/permissions/db/grant username=alice permission=GENERATE_REPORT  "Authorization:Bearer $ADMIN_TOKEN"
 
+//
+http GET :8081/permissions/db/list username==alice  "Authorization:Bearer $ADMIN_TOKEN"
 
 
 
