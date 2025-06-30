@@ -68,4 +68,7 @@ http POST :8081/auth/register username=emma password=password123 email=emma@abc.
 http POST :8081/admin/activate/emma "Authorization:Bearer $ADMIN_TOKEN"
 
 //
+http POST :8081/admin/deactivate/emma "Authorization:Bearer $ADMIN_TOKEN"
+
+//
 http POST :8081/auth/login username=emma password=password123

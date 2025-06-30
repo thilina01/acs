@@ -9,6 +9,9 @@ spring:
     url: jdbc:postgresql://postgres:5432/acsdb
     username: acsuser
     password: acspass
+    hikari:
+      connection-timeout: 30000
+      initialization-fail-timeout: -1 # ← wait for DB indefinitely
 
   jpa:
     hibernate:
