@@ -1,5 +1,10 @@
 package com.thilina01.acs.authservice.config;
 
+import java.util.Base64;
+
+import javax.crypto.spec.SecretKeySpec;
+
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -20,7 +25,10 @@ import org.springframework.security.core.userdetails.User;
 @EnableWebSecurity
 public class SecurityConfig {
 
-    @Bean // 👈 CRUCIAL: this was missing in your version!
+    @Value("${jwt.secret}")
+    private String jwtSecret;
+
+    @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(csrf -> csrf.disable())
@@ -38,21 +46,19 @@ public class SecurityConfig {
         return new BCryptPasswordEncoder();
     }
 
-@Bean
-public UserDetailsService userDetailsService(PasswordEncoder encoder) {
-    return new InMemoryUserDetailsManager(
-            User.withUsername("alice")
-                    .password(encoder.encode("password123"))
-                    .roles("USER")
-                    .build(),
+    @Bean
+    public UserDetailsService userDetailsService(PasswordEncoder encoder) {
+        return new InMemoryUserDetailsManager(
+                User.withUsername("alice")
+                        .password(encoder.encode("password123"))
+                        .roles("USER")
+                        .build(),
 
-            User.withUsername("admin")
-                    .password(encoder.encode("admin123"))
-                    .roles("USER", "ADMIN")
-                    .build()
-    );
-}
-
+                User.withUsername("admin")
+                        .password(encoder.encode("admin123"))
+                        .roles("USER", "ADMIN")
+                        .build());
+    }
 
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
@@ -61,9 +67,8 @@ public UserDetailsService userDetailsService(PasswordEncoder encoder) {
 
     @Bean
     public JwtDecoder jwtDecoder() {
-        String secret = "bXlzZWNyZXRrZXltYWtlc3VyZXRvaGF2ZXZhbGlkaW50ZXJ2YWw="; // same as JwtService
-        byte[] key = java.util.Base64.getDecoder().decode(secret);
-        return NimbusJwtDecoder.withSecretKey(new javax.crypto.spec.SecretKeySpec(key, "HmacSHA256")).build();
+        byte[] keyBytes = Base64.getDecoder().decode(jwtSecret);
+        return NimbusJwtDecoder.withSecretKey(new SecretKeySpec(keyBytes, "HmacSHA256")).build();
     }
 
 }

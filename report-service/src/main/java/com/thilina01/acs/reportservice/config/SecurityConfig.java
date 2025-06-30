@@ -1,6 +1,8 @@
 package com.thilina01.acs.reportservice.config;
 
 import com.thilina01.acs.reportservice.security.PermissionFetcher;
+
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -22,6 +24,9 @@ import java.util.List;
 @EnableWebSecurity
 public class SecurityConfig {
 
+    @Value("${jwt.secret}")
+    private String jwtSecret;
+
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http, JwtAuthenticationConverter converter) throws Exception {
         http
@@ -35,13 +40,6 @@ public class SecurityConfig {
                         .jwt(jwt -> jwt.jwtAuthenticationConverter(converter)));
 
         return http.build();
-    }
-
-    @Bean
-    public JwtDecoder jwtDecoder() {
-        String secret = "bXlzZWNyZXRrZXltYWtlc3VyZXRvaGF2ZXZhbGlkaW50ZXJ2YWw=";
-        byte[] key = Base64.getDecoder().decode(secret);
-        return NimbusJwtDecoder.withSecretKey(new SecretKeySpec(key, "HmacSHA256")).build();
     }
 
     @Bean
@@ -74,4 +72,11 @@ public class SecurityConfig {
 
         return converter;
     }
+
+    @Bean
+    public JwtDecoder jwtDecoder() {
+        byte[] keyBytes = Base64.getDecoder().decode(jwtSecret);
+        return NimbusJwtDecoder.withSecretKey(new SecretKeySpec(keyBytes, "HmacSHA256")).build();
+    }
+
 }

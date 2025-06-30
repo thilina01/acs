@@ -8,6 +8,9 @@ spring:
 auth-service:
   url: http://auth-service:8080
 
+jwt:
+  secret: ${JWT_SECRET:bXlzZWNyZXRrZXltYWtlc3VyZXRvaGF2ZXZhbGlkaW50ZXJ2YWw=}
+
 
 #   security:
 #     oauth2:
