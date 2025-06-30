@@ -1,5 +1,7 @@
 package com.thilina01.acs.authservice.security;
 
+import com.thilina01.acs.authservice.entity.User;
+import com.thilina01.acs.authservice.repository.UserRepository;
 import com.thilina01.acs.authservice.service.RedisPermissionService;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -16,12 +18,15 @@ import java.util.List;
 public class JwtService {
 
     private final RedisPermissionService redisPermissionService;
+    private final UserRepository userRepository;
     private final Key signingKey;
 
     public JwtService(
             RedisPermissionService redisPermissionService,
+            UserRepository userRepository,
             @Value("${jwt.secret}") String secretKey) {
         this.redisPermissionService = redisPermissionService;
+        this.userRepository = userRepository;
         this.signingKey = generateKey(secretKey);
     }
 
@@ -31,16 +36,19 @@ public class JwtService {
     }
 
     public String generateToken(String username, List<String> roles) {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new IllegalArgumentException("User not found: " + username));
+
         List<String> permissions = redisPermissionService.getPermissions(username);
 
         return Jwts.builder()
-                .setSubject(username)
+                .setSubject(user.getUsername())
                 .claim("roles", roles)
                 .claim("permissions", permissions)
-                .claim("department", "engineering")
+                .claim("department", user.getDepartment())
                 .claim("tenant", "thilina01")
-                .claim("email", username + "@thilina01.com")
-                .claim("fullName", "Test Full Name")
+                .claim("email", user.getEmail())
+                .claim("fullName", user.getFullName())
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60)) // 1 hour
                 .signWith(signingKey, SignatureAlgorithm.HS256)

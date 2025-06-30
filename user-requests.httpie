@@ -49,3 +49,12 @@ http POST :8082/users username=john fullName="John D" email=john@example.com rol
 
 // Delete user (admin only)
 http DELETE :8082/users/1 "Authorization:Bearer $TOKEN"
+
+// Login as bob (department: finance)
+export TOKEN=$(http POST :8081/auth/login username=bob password=password123 | jq -r .token)
+
+//
+echo $TOKEN | cut -d '.' -f2 | base64 -d | jq
+
+// 
+http :8083/abac/finance-data "Authorization:Bearer $TOKEN"

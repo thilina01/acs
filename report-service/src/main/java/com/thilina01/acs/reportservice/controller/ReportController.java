@@ -40,4 +40,15 @@ public class ReportController {
         return info;
     }
 
+    @GetMapping("/abac/finance-data")
+    @PreAuthorize("@abac.isDepartment(authentication, 'finance')")
+    public String financeOnlyAccess() {
+        return "Confidential finance report data.";
+    }
+
+    @GetMapping("/abac/finance-after-hours")
+    @PreAuthorize("@abac.isFinanceAfterHours(authentication)")
+    public String financeOnlyAfterHours() {
+        return "After-hours finance access granted.";
+    }
 }
