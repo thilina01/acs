@@ -31,3 +31,21 @@ echo $TOKEN | cut -d '.' -f2 | base64 -d | jq
 http :8081/permissions/redis/self "Authorization:Bearer $TOKEN"
 
 
+
+// Check whoami (any authenticated user)
+http :8082/whoami "Authorization:Bearer $TOKEN"
+
+// Get all users (admin-only)
+http :8082/users "Authorization:Bearer $TOKEN"
+
+// Get single user
+http :8082/users/1 "Authorization:Bearer $TOKEN"
+
+// Update user (admin or self)
+http PUT :8082/users/1 fullName="New Name" "Authorization:Bearer $TOKEN"
+
+// Create user (admin only)
+http POST :8082/users username=john fullName="John D" email=john@example.com role=USER department=sales "Authorization:Bearer $TOKEN"
+
+// Delete user (admin only)
+http DELETE :8082/users/1 "Authorization:Bearer $TOKEN"

@@ -21,6 +21,16 @@ services:
     networks:
       - acs-network
 
+
+  user-service:
+    build: ./user-service
+    ports:
+      - "8082:8080"
+    environment:
+      - SPRING_PROFILES_ACTIVE=dev
+    networks:
+      - acs-network
+
   redis:
     image: redis:7-alpine
     container_name: redis

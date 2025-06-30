@@ -1,0 +1,33 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: user-service
+
+  datasource:
+    url: jdbc:postgresql://postgres:5432/acsdb
+    username: acsuser
+    password: acspass
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          # Will be overridden by custom decoder bean
+          jwk-set-uri: ignored
+
+auth-service:
+  url: http://auth-service:8080
+  
+logging:
+  level:
+    org.springframework.security: DEBUG
