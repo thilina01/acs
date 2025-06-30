@@ -36,5 +36,8 @@ http POST :8081/permissions/db/grant username=alice permission=GENERATE_REPORT  
 //
 http GET :8081/permissions/db/list username==alice  "Authorization:Bearer $ADMIN_TOKEN"
 
+//
+http :8081/permissions/redis/list username==alice "Authorization:Bearer $ADMIN_TOKEN"
 
-
+//
+http :8081/permissions/redis/self "Authorization:Bearer $ADMIN_TOKEN"

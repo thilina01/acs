@@ -1,5 +1,6 @@
 package com.thilina01.acs.reportservice.config;
 
+import com.thilina01.acs.reportservice.security.PermissionFetcher;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -13,7 +14,6 @@ import org.springframework.security.oauth2.server.resource.authentication.JwtGra
 import org.springframework.security.web.SecurityFilterChain;
 
 import javax.crypto.spec.SecretKeySpec;
-
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
@@ -23,18 +23,16 @@ import java.util.List;
 public class SecurityConfig {
 
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain filterChain(HttpSecurity http, JwtAuthenticationConverter converter) throws Exception {
         http
                 .csrf(csrf -> csrf.disable())
                 .httpBasic(httpBasic -> httpBasic.disable())
                 .formLogin(form -> form.disable())
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/public").permitAll()
-                        // .requestMatchers("/generateReport").hasAuthority("PERM_GENERATE_REPORT") //
-                        // handled by @PreAuthorize
                         .anyRequest().authenticated())
                 .oauth2ResourceServer(oauth2 -> oauth2
-                        .jwt(jwt -> jwt.jwtAuthenticationConverter(jwtAuthenticationConverter())));
+                        .jwt(jwt -> jwt.jwtAuthenticationConverter(converter)));
 
         return http.build();
     }
@@ -46,39 +44,34 @@ public class SecurityConfig {
         return NimbusJwtDecoder.withSecretKey(new SecretKeySpec(key, "HmacSHA256")).build();
     }
 
-    private JwtAuthenticationConverter jwtAuthenticationConverter() {
+    @Bean
+    public JwtAuthenticationConverter jwtAuthenticationConverter(PermissionFetcher permissionFetcher) {
         JwtGrantedAuthoritiesConverter rolesConverter = new JwtGrantedAuthoritiesConverter();
         rolesConverter.setAuthoritiesClaimName("roles");
-        rolesConverter.setAuthorityPrefix(""); // already prefixed with ROLE_
+        rolesConverter.setAuthorityPrefix("");
 
-        return new JwtAuthenticationConverter() {
-            {
-                setJwtGrantedAuthoritiesConverter(jwt -> {
-                    List<GrantedAuthority> authorities = new ArrayList<>(rolesConverter.convert(jwt));
+        JwtAuthenticationConverter converter = new JwtAuthenticationConverter();
+        converter.setJwtGrantedAuthoritiesConverter(jwt -> {
+            List<GrantedAuthority> authorities = new ArrayList<>(rolesConverter.convert(jwt));
 
-                    List<String> permissions = jwt.getClaimAsStringList("permissions");
-                    if (permissions != null) {
-                        permissions.stream()
-                                .map(perm -> new SimpleGrantedAuthority("PERM_" + perm))
-                                .forEach(authorities::add);
-                    }
-
-                    // 🔥 Inject default permissions for ROLE_ADMIN
-                    List<String> roles = jwt.getClaimAsStringList("roles");
-                    if (roles != null && roles.contains("ROLE_ADMIN")) {
-                        List<String> adminImplied = List.of(
-                                "GENERATE_REPORT", "DELETE_USER", "ACCESS_AUDIT_LOGS");
-
-                        adminImplied.stream()
-                                .map(perm -> new SimpleGrantedAuthority("PERM_" + perm))
-                                .forEach(authorities::add);
-                    }
-
-                    return authorities;
-                });
-
+            List<String> dynamicPerms = permissionFetcher.fetchPermissions(jwt);
+            if (dynamicPerms != null) {
+                dynamicPerms.stream()
+                        .map(p -> new SimpleGrantedAuthority("PERM_" + p))
+                        .forEach(authorities::add);
             }
-        };
-    }
 
+            List<String> roles = jwt.getClaimAsStringList("roles");
+            if (roles != null && roles.contains("ROLE_ADMIN")) {
+                List<String> adminExtras = List.of("GENERATE_REPORT", "DELETE_USER", "ACCESS_AUDIT_LOGS");
+                adminExtras.stream()
+                        .map(p -> new SimpleGrantedAuthority("PERM_" + p))
+                        .forEach(authorities::add);
+            }
+
+            return authorities;
+        });
+
+        return converter;
+    }
 }

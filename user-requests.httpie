@@ -27,4 +27,7 @@ http :8081/permissions/list "Authorization:Bearer $TOKEN"
 //
 echo $TOKEN | cut -d '.' -f2 | base64 -d | jq
 
+//
+http :8081/permissions/redis/self "Authorization:Bearer $TOKEN"
+
 

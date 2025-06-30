@@ -18,6 +18,8 @@ services:
       - "8083:8080"
     environment:
       - SPRING_PROFILES_ACTIVE=dev
+    networks:
+      - acs-network
 
   redis:
     image: redis:7-alpine
