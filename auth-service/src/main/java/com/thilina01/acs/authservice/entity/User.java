@@ -17,12 +17,12 @@ public class User {
     private Long id;
 
     private String username;
-
+    private String password;
     private String email;
-
     private String fullName;
-
     private String department;
-
     private String role;
+
+    @Column(nullable = false)
+    private boolean active = false;
 }

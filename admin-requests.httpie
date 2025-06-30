@@ -60,3 +60,12 @@ http POST :8082/users username=john fullName="John D" email=john@example.com rol
 
 // Delete user (admin only)
 http DELETE :8082/users/5 "Authorization:Bearer $ADMIN_TOKEN"
+
+//
+http POST :8081/auth/register username=emma password=password123 email=emma@abc.com fullName="Emma Doe" department=sales role=USER
+
+//
+http POST :8081/admin/activate/emma "Authorization:Bearer $ADMIN_TOKEN"
+
+//
+http POST :8081/auth/login username=emma password=password123

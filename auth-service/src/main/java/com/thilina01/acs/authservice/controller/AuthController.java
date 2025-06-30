@@ -1,20 +1,23 @@
 package com.thilina01.acs.authservice.controller;
 
-import java.util.Map;
+import com.thilina01.acs.authservice.dto.UserRegistrationRequest;
+import com.thilina01.acs.authservice.entity.User;
+import com.thilina01.acs.authservice.repository.UserRepository;
+import com.thilina01.acs.authservice.security.JwtService;
+
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.security.oauth2.jwt.Jwt;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.web.bind.annotation.*;
 
-import com.thilina01.acs.authservice.security.JwtService;
+import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/auth")
@@ -22,10 +25,18 @@ public class AuthController {
 
     private final AuthenticationManager authenticationManager;
     private final JwtService jwtService;
+    private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
 
-    public AuthController(AuthenticationManager authenticationManager, JwtService jwtService) {
+    public AuthController(
+            AuthenticationManager authenticationManager,
+            JwtService jwtService,
+            UserRepository userRepository,
+            PasswordEncoder passwordEncoder) {
         this.authenticationManager = authenticationManager;
         this.jwtService = jwtService;
+        this.userRepository = userRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @PostMapping("/login")
@@ -36,12 +47,40 @@ public class AuthController {
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(username, password));
 
-        var user = (User) authentication.getPrincipal();
-        var roles = user.getAuthorities().stream().map(GrantedAuthority::getAuthority).toList();
+        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+        List<String> roles = userDetails.getAuthorities().stream()
+                .map(GrantedAuthority::getAuthority)
+                .toList();
+
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        if (!user.isActive()) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body(Map.of("error", "Account is not activated yet."));
+        }
 
         String jwt = jwtService.generateToken(username, roles);
-
         return ResponseEntity.ok(Map.of("token", jwt));
+    }
+
+    @PostMapping("/register")
+    public ResponseEntity<?> register(@RequestBody UserRegistrationRequest request) {
+        if (userRepository.findByUsername(request.username()).isPresent()) {
+            return ResponseEntity.badRequest().body("Username already exists.");
+        }
+
+        User user = new User();
+        user.setUsername(request.username());
+        user.setPassword(passwordEncoder.encode(request.password()));
+        user.setEmail(request.email());
+        user.setFullName(request.fullName());
+        user.setDepartment(request.department());
+        user.setRole(request.role());
+        user.setActive(false); // 🔒 Mark as inactive until admin activates
+
+        userRepository.save(user);
+        return ResponseEntity.ok("User registered successfully. Awaiting admin activation.");
     }
 
     @GetMapping("/me")
@@ -55,5 +94,4 @@ public class AuthController {
                 "issuedAt", jwt.getIssuedAt(),
                 "expiresAt", jwt.getExpiresAt());
     }
-
 }
