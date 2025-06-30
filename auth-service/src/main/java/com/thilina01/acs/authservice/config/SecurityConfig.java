@@ -47,25 +47,6 @@ public class SecurityConfig {
     }
 
     @Bean
-    public UserDetailsService userDetailsService(PasswordEncoder encoder) {
-        return new InMemoryUserDetailsManager(
-                User.withUsername("alice")
-                        .password(encoder.encode("password123"))
-                        .roles("USER")
-                        .build(),
-
-                User.withUsername("admin")
-                        .password(encoder.encode("admin123"))
-                        .roles("USER", "ADMIN")
-                        .build(),
-
-                User.withUsername("bob")
-                        .password(encoder.encode("password123"))
-                        .roles("USER", "MANAGER")
-                        .build());
-    }
-
-    @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
         return config.getAuthenticationManager();
     }
