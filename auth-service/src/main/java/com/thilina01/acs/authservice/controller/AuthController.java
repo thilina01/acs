@@ -1,5 +1,6 @@
 package com.thilina01.acs.authservice.controller;
 
+import com.thilina01.acs.authservice.dto.AuthMeResponse;
 import com.thilina01.acs.authservice.dto.UserRegistrationRequest;
 import com.thilina01.acs.authservice.entity.User;
 import com.thilina01.acs.authservice.repository.UserRepository;
@@ -20,7 +21,6 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/auth")
 public class AuthController {
 
     private final AuthenticationManager authenticationManager;
@@ -84,14 +84,20 @@ public class AuthController {
     }
 
     @GetMapping("/me")
-    public Map<String, Object> me(Authentication authentication) {
+    public AuthMeResponse me(Authentication authentication) {
         Jwt jwt = (Jwt) authentication.getPrincipal();
 
-        return Map.of(
-                "username", jwt.getSubject(),
-                "roles", jwt.getClaim("roles"),
-                "department", jwt.getClaim("department"),
-                "issuedAt", jwt.getIssuedAt(),
-                "expiresAt", jwt.getExpiresAt());
+        return new AuthMeResponse(
+                jwt.getSubject(),
+                getClaimSafe(jwt, "roles"),
+                getClaimSafe(jwt, "department"),
+                jwt.getIssuedAt(),
+                jwt.getExpiresAt());
     }
+
+    private String getClaimSafe(Jwt jwt, String claim) {
+        Object val = jwt.getClaim(claim);
+        return val != null ? val.toString() : null;
+    }
+
 }

@@ -1,5 +1,7 @@
 server:
   port: 8080
+  servlet:
+    context-path: /auth
 
 spring:
   application:
@@ -12,7 +14,7 @@ spring:
       port: 6379
       timeout: 3000
       connect-timeout: 3000
-  
+
   datasource:
     url: jdbc:postgresql://postgres:5432/acsdb
     username: acsuser

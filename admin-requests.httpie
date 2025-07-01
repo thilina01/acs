@@ -3,26 +3,28 @@ docker exec -it acs-postgres psql -U acsuser -d acsdb -c "UPDATE users SET passw
 
 //
 http POST :8081/auth/login username=admin password=admin123
+//
+http POST :80/auth/login username=admin password=admin123
 
 //
 export ADMIN_TOKEN=$(http POST :8081/auth/login username=admin password=admin123 | jq -r .token)
 
 //
-http :8083/generateReport "Authorization:Bearer $ADMIN_TOKEN"
+http :8083/report/generateReport "Authorization:Bearer $ADMIN_TOKEN"
 
 //
-http :8083/whoami "Authorization:Bearer $ADMIN_TOKEN"
+http :8083/report/whoami "Authorization:Bearer $ADMIN_TOKEN"
 
 
 // Grant permission
-http POST :8081/permissions/grant permission=GENERATE_REPORT "Authorization:Bearer $ADMIN_TOKEN"
+http POST :8081/auth/permissions/grant permission=GENERATE_REPORT "Authorization:Bearer $ADMIN_TOKEN"
 
 // Grant permission to another user
-http POST :8081/permissions/grant permission=GENERATE_REPORT targetUser=alice "Authorization:Bearer $ADMIN_TOKEN"
+http POST :8081/auth/permissions/grant permission=GENERATE_REPORT targetUser=alice "Authorization:Bearer $ADMIN_TOKEN"
 
 
 // List permissions
-http :8081/permissions/list "Authorization:Bearer $ADMIN_TOKEN"
+http :8081/auth/permissions/list "Authorization:Bearer $ADMIN_TOKEN"
 
 // 
 export ADMIN_TOKEN=$(http POST :8081/auth/login username=admin password=admin123 | jq -r .token)
@@ -31,26 +33,26 @@ export ADMIN_TOKEN=$(http POST :8081/auth/login username=admin password=admin123
 echo $ADMIN_TOKEN | cut -d '.' -f2 | base64 -d | jq
 
 //
-http POST :8081/permissions/grant permission=GENERATE_REPORT targetUser=alice "Authorization:Bearer $ADMIN_TOKEN"
+http POST :8081/auth/permissions/grant permission=GENERATE_REPORT targetUser=alice "Authorization:Bearer $ADMIN_TOKEN"
 
 //
-http POST :8081/permissions/db/grant username=alice permission=GENERATE_REPORT  "Authorization:Bearer $ADMIN_TOKEN"
+http POST :8081/auth/permissions/db/grant username=alice permission=GENERATE_REPORT  "Authorization:Bearer $ADMIN_TOKEN"
 
 //
-http GET :8081/permissions/db/list username==alice  "Authorization:Bearer $ADMIN_TOKEN"
+http GET :8081/auth/permissions/db/list username==alice  "Authorization:Bearer $ADMIN_TOKEN"
 
 //
-http :8081/permissions/redis/list username==alice "Authorization:Bearer $ADMIN_TOKEN"
+http :8081/auth/permissions/redis/list username==alice "Authorization:Bearer $ADMIN_TOKEN"
 
 //
-http :8081/permissions/redis/self "Authorization:Bearer $ADMIN_TOKEN"
+http :8081/auth/permissions/redis/self "Authorization:Bearer $ADMIN_TOKEN"
 
 
 // Check whoami (any authenticated user)
-http :8082/whoami "Authorization:Bearer $ADMIN_TOKEN"
+http :8082/users/whoami "Authorization:Bearer $ADMIN_TOKEN"
 
 // Get all users (admin-only)
-http :8082/users "Authorization:Bearer $ADMIN_TOKEN"
+http :8082/users/ "Authorization:Bearer $ADMIN_TOKEN"
 
 // Get single user
 http :8082/users/1 "Authorization:Bearer $ADMIN_TOKEN"
@@ -59,19 +61,19 @@ http :8082/users/1 "Authorization:Bearer $ADMIN_TOKEN"
 http PUT :8082/users/1 fullName="New Name" "Authorization:Bearer $ADMIN_TOKEN"
 
 // Create user (admin only)
-http POST :8082/users username=john fullName="John D" email=john@example.com role=USER department=sales "Authorization:Bearer $ADMIN_TOKEN"
+http POST :8082/users/ username=john2 fullName="John D2" email=john2@example.com role=USER department=sales "Authorization:Bearer $ADMIN_TOKEN"
 
 // Delete user (admin only)
-http DELETE :8082/users/5 "Authorization:Bearer $ADMIN_TOKEN"
+http DELETE :8082/users/7 "Authorization:Bearer $ADMIN_TOKEN"
 
 //
 http POST :8081/auth/register username=emma password=password123 email=emma@abc.com fullName="Emma Doe" department=sales role=USER
 
 //
-http POST :8081/admin/activate/emma "Authorization:Bearer $ADMIN_TOKEN"
+http POST :8081/auth/admin/activate/emma "Authorization:Bearer $ADMIN_TOKEN"
 
 //
-http POST :8081/admin/deactivate/emma "Authorization:Bearer $ADMIN_TOKEN"
+http POST :8081/auth/admin/deactivate/emma "Authorization:Bearer $ADMIN_TOKEN"
 
 //
 http POST :8081/auth/login username=emma password=password123

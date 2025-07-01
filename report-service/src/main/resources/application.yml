@@ -1,5 +1,7 @@
 server:
   port: 8080
+  servlet:
+    context-path: /report
 
 spring:
   application:
@@ -19,11 +21,10 @@ springdoc:
     tags-sorter: alpha
     operations-sorter: alpha
   default-produces-media-type: application/json
-
 #   security:
 #     oauth2:
 #       resourceserver:
 #         jwt:
-          # We decode using shared symmetric key
-          # No need for issuer or JWK if you use `JwtDecoder` bean
+# We decode using shared symmetric key
+# No need for issuer or JWK if you use `JwtDecoder` bean
 

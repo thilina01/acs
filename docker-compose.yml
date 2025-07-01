@@ -1,6 +1,25 @@
 services:
+  traefik:
+    image: traefik:v2.11
+    container_name: traefik
+    command:
+      - "--api.insecure=true"
+      - "--providers.docker=true"
+      - "--entrypoints.web.address=:80"
+    ports:
+      - "80:80"
+      - "8080:8080" # Dashboard
+    networks:
+      - acs-network
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+
   auth-service:
     build: ./auth-service
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.auth.rule=PathPrefix(`/auth`)"
+      - "traefik.http.services.auth.loadbalancer.server.port=8080"
     ports:
       - "8081:8080"
     environment:
@@ -11,9 +30,12 @@ services:
       - postgres
       - redis
 
-
   report-service:
     build: ./report-service
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.report.rule=PathPrefix(`/report`)"
+      - "traefik.http.services.report.loadbalancer.server.port=8080"
     ports:
       - "8083:8080"
     environment:
@@ -21,9 +43,12 @@ services:
     networks:
       - acs-network
 
-
   user-service:
     build: ./user-service
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.user.rule=PathPrefix(`/users`)"
+      - "traefik.http.services.user.loadbalancer.server.port=8080"
     ports:
       - "8082:8080"
     environment:
