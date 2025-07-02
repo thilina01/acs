@@ -23,6 +23,7 @@ public class UserSeeder {
                     .email("alice@example.com")
                     .role("USER")
                     .department("engineering")
+                    .active(false)
                     .build());
 
             repo.save(User.builder()
@@ -31,6 +32,7 @@ public class UserSeeder {
                     .email("bob@example.com")
                     .role("MANAGER")
                     .department("finance")
+                    .active(false)
                     .build());
 
             repo.save(User.builder()
@@ -39,6 +41,7 @@ public class UserSeeder {
                     .email("admin@example.com")
                     .role("ADMIN")
                     .department("it")
+                    .active(true)
                     .build());
         }
     }
