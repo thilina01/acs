@@ -26,4 +26,7 @@ public class User {
     private String department;
 
     private String role; // USER, MANAGER, ADMIN
+
+    @Column(nullable = false)
+    private boolean active;
 }
