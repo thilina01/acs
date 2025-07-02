@@ -1,0 +1,24 @@
+
+# connect to container
+ docker exec -it kafka bash
+
+# create topic
+kafka-topics --create \
+  --topic test-topic \
+  --bootstrap-server localhost:9092 \
+  --partitions 1 \
+  --replication-factor 1
+
+# send message
+kafka-console-producer \
+  --topic test-topic \
+  --bootstrap-server localhost:9092
+
+# Consume message
+kafka-console-consumer \
+  --topic test-topic \
+  --bootstrap-server localhost:9092 \
+  --from-beginning \
+  --timeout-ms 5000
+
+

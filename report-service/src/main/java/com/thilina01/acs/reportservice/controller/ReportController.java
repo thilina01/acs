@@ -10,9 +10,14 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.beans.factory.annotation.Autowired;
 
 @RestController
 public class ReportController {
+
+    @Autowired
+    private KafkaTemplate<String, String> kafkaTemplate;
 
     @GetMapping("/public")
     public String publicInfo() {
@@ -24,6 +29,10 @@ public class ReportController {
     public ResponseEntity<String> generateReport(Authentication auth) {
         System.out.println("Authenticated user: " + auth.getName());
         System.out.println("Authorities: " + auth.getAuthorities());
+
+        String username = auth.getName();
+        kafkaTemplate.send("report-generated", "{ \"user\": \"" + username + "\", \"message\": \"Report generated.\" }");
+
         return ResponseEntity.ok("Report generated!");
     }
 

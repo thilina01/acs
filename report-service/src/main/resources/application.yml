@@ -6,6 +6,11 @@ server:
 spring:
   application:
     name: report-service
+  kafka:
+    bootstrap-servers: kafka:9092
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
 
 auth-service:
   url: http://auth-service:8080
@@ -21,6 +26,7 @@ springdoc:
     tags-sorter: alpha
     operations-sorter: alpha
   default-produces-media-type: application/json
+
 #   security:
 #     oauth2:
 #       resourceserver:

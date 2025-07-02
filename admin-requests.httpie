@@ -1,5 +1,8 @@
 //
-docker exec -it acs-postgres psql -U acsuser -d acsdb -c "UPDATE users SET password = '\$2a\$10\$EtfgyS7EF3cUhaZ9Y3vicumMpMGeb7Q26pGsB3P3d1aaDVCKNV3BK' WHERE username = 'admin';"
+//docker exec -it acs-postgres psql -U acsuser -d acsdb -c "UPDATE users SET password = '\$2a\$10\$EtfgyS7EF3cUhaZ9Y3vicumMpMGeb7Q26pGsB3P3d1aaDVCKNV3BK' WHERE username = 'admin';"
+
+//
+//docker exec -it acs-postgres psql -U acsuser -d acsdb -c "UPDATE users SET active = true WHERE username = 'admin';"
 
 //
 http POST :8081/auth/login username=admin password=admin123
