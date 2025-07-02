@@ -47,6 +47,7 @@ public class UserController {
         return userService.findById(id).map(existing -> {
             existing.setFullName(updated.getFullName());
             existing.setEmail(updated.getEmail());
+            existing.setMobile(updated.getMobile());
             existing.setDepartment(updated.getDepartment());
             return ResponseEntity.ok(userService.save(existing));
         }).orElse(ResponseEntity.notFound().build());

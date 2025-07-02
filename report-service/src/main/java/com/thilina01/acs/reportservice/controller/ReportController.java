@@ -1,8 +1,11 @@
 package com.thilina01.acs.reportservice.controller;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
@@ -31,9 +34,34 @@ public class ReportController {
         System.out.println("Authorities: " + auth.getAuthorities());
 
         String username = auth.getName();
-        kafkaTemplate.send("report-generated", "{ \"user\": \"" + username + "\", \"message\": \"Report generated.\" }");
+        String mobile = null;
 
-        return ResponseEntity.ok("Report generated!");
+        if (auth.getPrincipal() instanceof Jwt jwt) {
+            mobile = jwt.getClaim("mobile");
+            System.out.println("Mobile from JWT: " + mobile);
+        }
+
+        if (mobile == null || mobile.isBlank()) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body("Mobile number not found in token.");
+        }
+
+        String message = "Hi " + username + ", your report has been generated.";
+
+        try {
+            ObjectMapper mapper = new ObjectMapper();
+            Map<String, Object> payload = Map.of(
+                    "message", message,
+                    "numbers", List.of(mobile)
+            );
+            String jsonPayload = mapper.writeValueAsString(payload);
+            kafkaTemplate.send("report-generated", jsonPayload);
+
+            return ResponseEntity.ok("Report generated and SMS event sent.");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Error generating report: " + e.getMessage());
+        }
     }
 
     @GetMapping("/whoami")

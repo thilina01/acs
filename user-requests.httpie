@@ -1,6 +1,6 @@
 
 //
-//docker exec -it acs-postgres psql -U acsuser -d acsdb -c "UPDATE users SET password = '\$2a\$10\$mklPgWfSR5rWn3t82liZyuB9xhA9UZNqGOxmaf5DwhuQQj4R59K2a' WHERE username = 'alice';"
+docker exec -it acs-postgres psql -U acsuser -d acsdb -c "UPDATE users SET password = '\$2a\$10\$mklPgWfSR5rWn3t82liZyuB9xhA9UZNqGOxmaf5DwhuQQj4R59K2a' WHERE username = 'alice';"
 
 //
 http :8081/auth/hello
@@ -11,11 +11,15 @@ http GET :80/auth/hello
 
 //
 http POST :8081/auth/login username=alice password=password123
+
 //
 http POST :80/auth/login username=alice password=password123
 
 //
 export TOKEN=$(http POST :8081/auth/login username=alice password=password123 | jq -r .token)
+
+// Decode JWT token
+echo $TOKEN | cut -d '.' -f2 | base64 -d | jq
 
 //
 http :8081/auth/me "Authorization:Bearer $TOKEN"

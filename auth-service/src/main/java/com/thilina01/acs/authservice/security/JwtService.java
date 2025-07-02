@@ -48,6 +48,7 @@ public class JwtService {
                 .claim("department", user.getDepartment())
                 .claim("tenant", "thilina01")
                 .claim("email", user.getEmail())
+                .claim("mobile", user.getMobile())
                 .claim("fullName", user.getFullName())
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60)) // 1 hour

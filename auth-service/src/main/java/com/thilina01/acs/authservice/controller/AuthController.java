@@ -74,6 +74,7 @@ public class AuthController {
         user.setUsername(request.username());
         user.setPassword(passwordEncoder.encode(request.password()));
         user.setEmail(request.email());
+        user.setMobile(request.mobile());
         user.setFullName(request.fullName());
         user.setDepartment(request.department());
         user.setRole(request.role());

@@ -23,6 +23,8 @@ public class User {
 
     private String email;
 
+    private String mobile;
+
     private String department;
 
     private String role; // USER, MANAGER, ADMIN

@@ -15,6 +15,7 @@ public class ProfileController {
                 jwt.getSubject(),
                 jwt.getClaimAsStringList("roles"),
                 getClaimSafe(jwt, "email"),
+                getClaimSafe(jwt, "mobile"),
                 getClaimSafe(jwt, "department"),
                 getClaimSafe(jwt, "fullName")
         );

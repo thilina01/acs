@@ -9,6 +9,7 @@ public record WhoAmIResponse(
         @Schema(description = "Username from subject claim") String username,
         @Schema(description = "Granted roles from JWT") List<String> roles,
         @Schema(description = "User's email address") String email,
+        @Schema(description = "User's mobile number") String mobile,
         @Schema(description = "User's department") String department,
         @Schema(description = "User's full name") String fullName
 ) {}
