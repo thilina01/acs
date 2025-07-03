@@ -1,0 +1,51 @@
+@startuml
+!includeurl https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
+
+' SYSTEM CONTEXT
+LAYOUT_WITH_LEGEND()
+Person(admin, "Admin User", "Manages users and permissions")
+Person(user, "End User", "Consumes application features")
+
+System_Boundary(c1, "Advanced Access Control System") {
+
+  Container(traefik, "Traefik", "Reverse Proxy", "Routes traffic to microservices")
+
+  Container(auth, "Auth Service", "Spring Boot", "Handles login, registration, JWT auth, and permission management")
+  Container(userService, "User Service", "Spring Boot", "Manages user profiles, roles, and access control")
+  Container(reportService, "Report Service", "Spring Boot", "Generates reports and triggers notifications via Kafka")
+  Container(smsService, "SMS Service", "Spring Boot", "Sends SMS notifications from Kafka events")
+
+  ContainerDb(pg, "PostgreSQL", "Database", "Shared database for persistent data (users, permissions)")
+  ContainerDb(redis, "Redis", "Key-Value Store", "Stores temporary permissions (TTL-based)")
+
+  Container(kafka, "Kafka", "Message Broker", "Enables async events between report and SMS services")
+
+  Container_Ext(smsGateway, "SMS Gateway", "HTTP API", "External SMS API at http://192.168.2.38:8080/send-sms")
+
+}
+
+' RELATIONSHIPS
+Rel(admin, auth, "Registers, activates users via")
+Rel(admin, userService, "Manages users via")
+
+Rel(user, auth, "Logs in / registers via")
+Rel(user, userService, "Updates profile, queries data via")
+Rel(user, reportService, "Generates reports via")
+
+Rel(traefik, auth, "Forwards /auth/**", "HTTP")
+Rel(traefik, reportService, "Forwards /report/**", "HTTP")
+Rel(traefik, userService, "Forwards /users/**", "HTTP")
+Rel(traefik, smsService, "Forwards /sms/**", "HTTP")
+
+Rel(auth, pg, "Reads/Writes", "JPA")
+Rel(userService, pg, "Reads/Writes", "JPA")
+Rel(auth, redis, "Stores temporary permissions")
+Rel(reportService, auth, "Fetches dynamic permissions", "HTTP (PermissionFetcher)")
+Rel(userService, auth, "Fetches dynamic permissions", "HTTP (PermissionFetcher)")
+
+Rel(reportService, kafka, "Sends 'report-generated' event")
+Rel(smsService, kafka, "Consumes 'report-generated' event")
+Rel(smsService, smsGateway, "Sends SMS via", "HTTP")
+@enduml
+
+' sudo apt install graphviz
