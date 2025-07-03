@@ -16,6 +16,7 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(nullable = false, unique = true)
     private String username;
     private String password;
     private String email;
@@ -26,4 +27,6 @@ public class User {
 
     @Column(nullable = false)
     private boolean active = false;
+    @Column(nullable = false)
+    private boolean mobileVerified = false;
 }

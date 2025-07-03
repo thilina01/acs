@@ -40,13 +40,18 @@ public class UserController {
         return userService.findById(id).map(existing -> {
             existing.setFullName(updated.getFullName());
             existing.setEmail(updated.getEmail());
-            existing.setMobile(updated.getMobile());
             existing.setDepartment(updated.getDepartment());
-            return ResponseEntity.ok(userService.save(existing));
-        }).orElse(ResponseEntity.notFound().build());
-    }
 
-    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
+            // 🔁 Check if mobile number was changed
+            if (updated.getMobile() != null && !updated.getMobile().equals(existing.getMobile())) {
+                existing.setMobile(updated.getMobile());
+                existing.setMobileVerified(false); // ⛔ Reset verification
+            }
+                return ResponseEntity.ok(userService
+            }).orElse(ResponseEntity.notFound().build());
+                
+                
+            Authorize("hasAuthority('ROLE_ADMIN')")
     @DeleteMapping("/{id}")
     public ResponseEntity<?> delete(@PathVariable Long id) {
         userService.delete(id);

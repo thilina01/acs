@@ -92,3 +92,12 @@ http POST :8081/auth/admin/deactivate/emma "Authorization:Bearer $ADMIN_TOKEN"
 
 //
 http POST :8081/auth/login username=emma password=password123
+
+//
+docker exec -it acs-postgres psql -U acsuser -d acsdb -c "ALTER TABLE users ADD COLUMN mobile_verified BOOLEAN DEFAULT FALSE NOT NULL;"
+
+//
+http POST :8081/auth/verify-mobile/send "Authorization:Bearer $ADMIN_TOKEN"
+
+// 
+http POST :8081/auth/verify-mobile/confirm otp=672420 "Authorization:Bearer $ADMIN_TOKEN"

@@ -18,17 +18,14 @@ public class User {
 
     @Column(nullable = false, unique = true)
     private String username;
-
     private String fullName;
-
     private String email;
-
     private String mobile;
-
     private String department;
-
     private String role; // USER, MANAGER, ADMIN
 
     @Column(nullable = false)
     private boolean active;
+    @Column(nullable = false)
+    private boolean mobileVerified = false;
 }
