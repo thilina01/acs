@@ -2,7 +2,6 @@ package com.thilina01.acs.userservice.controller;
 
 import com.thilina01.acs.userservice.model.User;
 import com.thilina01.acs.userservice.service.UserService;
-import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -32,12 +31,6 @@ public class UserController {
         return userService.findById(id)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
-    }
-
-    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
-    @PostMapping
-    public ResponseEntity<User> create(@RequestBody @Valid User user) {
-        return ResponseEntity.ok(userService.save(user));
     }
 
     @PreAuthorize("hasAuthority('ROLE_ADMIN') or @userSecurity.isSelf(#id, #jwt.subject)")

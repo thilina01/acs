@@ -75,8 +75,8 @@ http :8082/users/1 "Authorization:Bearer $ADMIN_TOKEN"
 // Update user (admin or self)
 http PUT :8082/users/1 fullName="New Name" "Authorization:Bearer $ADMIN_TOKEN"
 
-// Create user (admin only)
-http POST :8082/users/ username=john2 fullName="John D2" email=john2@example.com role=USER department=sales "Authorization:Bearer $ADMIN_TOKEN"
+// Create user (admin only) -> moved to auth/register
+// http POST :8082/users/ username=john2 fullName="John D2" email=john2@example.com role=USER department=sales "Authorization:Bearer $ADMIN_TOKEN"
 
 // Delete user (admin only)
 http DELETE :8082/users/7 "Authorization:Bearer $ADMIN_TOKEN"

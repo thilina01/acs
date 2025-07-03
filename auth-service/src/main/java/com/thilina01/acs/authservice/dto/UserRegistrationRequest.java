@@ -1,11 +1,15 @@
 package com.thilina01.acs.authservice.dto;
 
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+
 public record UserRegistrationRequest(
-    String username,
-    String password,
-    String email,
-    String mobile,
-    String fullName,
-    String department,
-    String role
-) {}
+        @NotBlank String username,
+        @NotBlank String password,
+        @NotBlank @Email String email,
+        @NotBlank String mobile,
+        String fullName,
+        String department,
+        String role
+) {
+}
